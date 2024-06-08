@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="File" representedClassName="File" parentEntity="Item" syncable="YES"/>
+    <entity name="Folder" representedClassName="Folder" parentEntity="Item" syncable="YES">
+        <attribute name="isRoot" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Item" inverseName="parentFolder" inverseEntity="Item"/>
+    </entity>
+    <entity name="Item" representedClassName="Item" isAbstract="YES" syncable="YES">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isFile" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="parentFolder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Folder" inverseName="items" inverseEntity="Folder"/>
+    </entity>
+</model>
