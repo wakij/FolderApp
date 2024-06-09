@@ -131,7 +131,7 @@ class FolderViewController: UIViewController {
         self.folderReg = UICollectionView.CellRegistration<FinderCellView, FolderModel> { [weak self](cell,indexPath,itemIdentifier) in
             guard let self else { return }
             cell.contentConfiguration = FolderContentView.FolderConfiguration(nameText: itemIdentifier.text, itemNum: itemIdentifier.itemCount, isMultiSelected: false)
-            cell.backgroundConfiguration = cell.defaultBackgroundConfiguration()
+            cell.backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
             cell.isMultipleTouchMode = self.mode == .select
             cell.renameDelegate = self
         }
@@ -307,6 +307,13 @@ extension FolderViewController: UICollectionViewDelegate {
         return true
     }
     
+    func collectionView(_ collectionView: UICollectionView, shouldSpringLoadItemAt indexPath: IndexPath, with context: any UISpringLoadedInteractionContext) -> Bool {
+        if mode == .select {
+            return false
+        }
+        return true
+    }
+    
 //    複数選択時
 //    selected状態のセルをもう一度tapすると呼ばれる
 //    通常時
@@ -352,6 +359,9 @@ extension FolderViewController: UICollectionViewDelegate {
 
 extension FolderViewController: UICollectionViewDragDelegate {
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: any UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        if mode == .select {
+            return []
+        }
         guard let item = self.dataSource.itemIdentifier(for: indexPath) else { return [] }
         let itemProvider = NSItemProvider()
         let dragItem = UIDragItem(itemProvider: itemProvider)

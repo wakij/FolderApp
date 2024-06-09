@@ -37,6 +37,17 @@ class FinderCellView: UICollectionViewCell {
         super.prepareForReuse()
         self.isMultipleTouchMode = false
     }
+    
+    override func updateConfiguration(using state: UICellConfigurationState) {
+        var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
+        if state.isSelected {
+            backgroundConfiguration.backgroundColor = .clear
+        }
+        if state.isHighlighted {
+            backgroundConfiguration.backgroundColor = .clear
+        }
+        self.backgroundConfiguration = backgroundConfiguration
+    }
 }
 
 extension FinderCellView: FinderContetnViewDelegate {
