@@ -78,9 +78,11 @@ class FolderViewController: UIViewController {
         didSet {
             switch mode {
             case .edit:
-                self.collectionView.allowsMultipleSelection = false
+                self.collectionView.isEditing = false
+                self.collectionView.allowsMultipleSelectionDuringEditing = false
             case .select:
-                self.collectionView.allowsMultipleSelection = true
+                self.collectionView.isEditing = true
+                self.collectionView.allowsMultipleSelectionDuringEditing = true
             }
         }
     }
@@ -118,14 +120,19 @@ class FolderViewController: UIViewController {
         layout.minimumLineSpacing = 50
         self.collectionView = FolderCollectionVidw(frame: .zero, collectionViewLayout: layout)
         self.collectionView.delegate = self
-        self.fileReg = UICollectionView.CellRegistration<FinderCellView, FileModel> { cell,indexPath,itemIdentifier in
+        self.fileReg = UICollectionView.CellRegistration<FinderCellView, FileModel> { [weak self](cell,indexPath,itemIdentifier) in
+            guard let self else { return }
+//            以前の状態を引き継ぐ必要がある
             cell.contentConfiguration = FileContentView.FileConfiguration(nameText: itemIdentifier.text, isMultiSelected: false)
+            cell.isMultipleTouchMode = self.mode == .select
             cell.renameDelegate = self
         }
         
-        self.folderReg = UICollectionView.CellRegistration<FinderCellView, FolderModel> { cell,indexPath,itemIdentifier in
+        self.folderReg = UICollectionView.CellRegistration<FinderCellView, FolderModel> { [weak self](cell,indexPath,itemIdentifier) in
+            guard let self else { return }
             cell.contentConfiguration = FolderContentView.FolderConfiguration(nameText: itemIdentifier.text, itemNum: itemIdentifier.itemCount, isMultiSelected: false)
             cell.backgroundConfiguration = cell.defaultBackgroundConfiguration()
+            cell.isMultipleTouchMode = self.mode == .select
             cell.renameDelegate = self
         }
         
@@ -219,19 +226,16 @@ class FolderViewController: UIViewController {
         self.title = "アイテムを選択"
     }
     
+//    var isEditing -> なぞって何かが可能かどうか
     @objc func setSelectOn() {
         mode = .select
         collectionView.reloadData()
-        self.collectionView.allowsMultipleSelection = true
-        self.collectionView.isEditing = true
-        self.collectionView.allowsMultipleSelectionDuringEditing = true
         setUpNavigationBar()
     }
     
     @objc func setSelectOff() {
         mode = .edit
         collectionView.reloadData()
-        self.collectionView.allowsMultipleSelection = false
         setUpNavigationBar()
     }
     
@@ -303,13 +307,14 @@ extension FolderViewController: UICollectionViewDelegate {
         return true
     }
     
-//    isSelectの状態でもう一度tapすると呼ばれる
-//    or 自分でisSelectedをfalseにする
+//    複数選択時
+//    selected状態のセルをもう一度tapすると呼ばれる
+//    通常時
+//    あるセルがselectedで他のセルをtapすると呼ばれる
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath), let finderCell = cell as? FinderCellView else { return }
         
-        if collectionView.allowsMultipleSelection {
-            finderCell.isMultiSelected = cell.isSelected
+        if mode == .select {
             updateNaviBar()
             return
         }
@@ -319,8 +324,7 @@ extension FolderViewController: UICollectionViewDelegate {
         
         guard let cell = collectionView.cellForItem(at: indexPath), let finderCell = cell as? FinderCellView else { return }
                 
-        if collectionView.allowsMultipleSelection {
-            finderCell.isMultiSelected = cell.isSelected
+        if mode == .select {
             updateNaviBar()
             return
         }
@@ -329,12 +333,12 @@ extension FolderViewController: UICollectionViewDelegate {
         
 //        対応するcoredataModelを取得
         if item.isFile {
-            if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-                let pickerView = UIImagePickerController()
-                pickerView.sourceType = .photoLibrary
-                pickerView.delegate = self
-                self.present(pickerView, animated: true)
-            }
+//            if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+//                let pickerView = UIImagePickerController()
+//                pickerView.sourceType = .photoLibrary
+//                pickerView.delegate = self
+//                self.present(pickerView, animated: true)
+//            }
         } else {
             guard let folder: Folder = self.finderManager.fetch(id: item.id) else {
                 return

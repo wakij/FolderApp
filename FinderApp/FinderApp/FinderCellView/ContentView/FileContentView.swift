@@ -13,7 +13,7 @@ final class FileContentView: UIView, UIContentView, FinderContentView {
     
     struct FileConfiguration: UIContentConfiguration, Hashable {
         var nameText: String
-        var isMultiSelected: Bool
+        var isMultiSelected: Bool = false
         
         func makeContentView() -> any UIView & UIContentView {
             return FileContentView(configuration: self)

@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+//UICollectionViewListCellは選択状態だとデフォで背景が灰色になる
 class FinderCellView: UICollectionViewCell {
     weak var renameDelegate: FinderItemNameFiledDelegate? {
         didSet {
@@ -15,38 +16,26 @@ class FinderCellView: UICollectionViewCell {
             finderItem.delegate = self
         }
     }
-    var isMultiSelected: Bool = false {
-        didSet {
-            if oldValue != isMultiSelected {
-                setNeedsUpdateConfiguration()
-            }
-        }
-    }
+    
+    var isMultipleTouchMode: Bool = false
     
     override var configurationState: UICellConfigurationState {
         // Get the structure from UIKit with the system properties set by calling super.
         var state = super.configurationState
 
         // Set the custom property on the state.
-        state.isMultiSelected = isMultiSelected
+        if isMultipleTouchMode {
+            state.isMultiSelected = isSelected
+        }
+        
         return state
     }
     
+//    collectionView?.reloadData() or reuseの時
 //  再生成するときに以前の状態を引き継がないようにする
     override func prepareForReuse() {
         super.prepareForReuse()
-        self.isMultiSelected = false
-    }
-    
-    override func updateConfiguration(using state: UICellConfigurationState) {
-        var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
-        if state.isSelected {
-            backgroundConfiguration.backgroundColor = .clear
-        }
-        if state.isHighlighted {
-            backgroundConfiguration.backgroundColor = .clear
-        }
-        self.backgroundConfiguration = backgroundConfiguration
+        self.isMultipleTouchMode = false
     }
 }
 

@@ -15,7 +15,7 @@ final class FolderContentView: UIView, UIContentView, FinderContentView {
     struct FolderConfiguration: UIContentConfiguration, Hashable {
         var nameText: String
         var itemNum: Int
-        var isMultiSelected: Bool
+        var isMultiSelected: Bool = false
         
         func makeContentView() -> any UIView & UIContentView {
             return FolderContentView(configuration: self)
