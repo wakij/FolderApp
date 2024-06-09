@@ -8,8 +8,8 @@
 import Foundation
 import UIKit
 
-final class FinderCellView: UICollectionViewCell {
-    weak var delegate: FinderItemNameFiledDelegate? {
+class FinderCellView: UICollectionViewCell {
+    weak var renameDelegate: FinderItemNameFiledDelegate? {
         didSet {
             guard let finderItem = contentView as? FinderContentView else { return }
             finderItem.delegate = self
@@ -52,10 +52,10 @@ final class FinderCellView: UICollectionViewCell {
 
 extension FinderCellView: FinderContetnViewDelegate {
     func shouldBeginTextFiled(textFiled: UITextField) -> Bool {
-        return delegate?.shouldBeginTextFiled(cell: self, textFiled: textFiled) ?? false
+        return renameDelegate?.shouldBeginTextFiled(cell: self, textFiled: textFiled) ?? false
     }
     
     func didEndEditTextFiled(textFiled: UITextField) {
-        delegate?.didEndEditTextFiled(cell: self, textFiled: textFiled)
+        renameDelegate?.didEndEditTextFiled(cell: self, textFiled: textFiled)
     }
 }

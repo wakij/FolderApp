@@ -365,6 +365,7 @@
 				DEVELOPMENT_TEAM = 6HZ7Z596PW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FinderApp/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "カメラロールの画像を編集するのに使用";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -392,6 +393,7 @@
 				DEVELOPMENT_TEAM = 6HZ7Z596PW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FinderApp/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "カメラロールの画像を編集するのに使用";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
