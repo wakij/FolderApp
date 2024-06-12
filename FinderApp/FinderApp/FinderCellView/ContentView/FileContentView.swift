@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 final class FileContentView: UIView, UIContentView, FinderContentView {
-    var delegate: (any FinderContetnViewDelegate)?
+    weak var delegate: (any FinderContetnViewDelegate)?
     
     struct FileConfiguration: UIContentConfiguration, Hashable {
         var nameText: String
