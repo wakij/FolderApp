@@ -137,8 +137,9 @@ class FolderViewController: UIViewController {
         }
         
         self.dataSource = UICollectionViewDiffableDataSource<Section, FinderItem>(collectionView: collectionView) {
-            (collectionView: UICollectionView, indexPath: IndexPath, itemIdentifier: FinderItem) -> FinderCellView? in
+            [weak self](collectionView: UICollectionView, indexPath: IndexPath, itemIdentifier: FinderItem) -> FinderCellView? in
             
+            guard let self else { return nil }
             
             switch itemIdentifier {
             case .file(let fileModel):
