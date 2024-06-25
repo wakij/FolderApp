@@ -1,5 +1,5 @@
 //
-//  CanvasViewController.swift
+//  canvasController.swift
 //  FinderApp
 //
 //  Created by tomoshigewakita on 2024/06/09.
@@ -50,7 +50,7 @@ class CanvasViewController: UIViewController {
                 toolPicker.addObserver(canvas)
                 toolPicker.setVisible(true, forFirstResponder: canvas)
                 canvas.becomeFirstResponder()
-
+                
             }
         }
         
@@ -58,7 +58,7 @@ class CanvasViewController: UIViewController {
         toolPicker.addObserver(canvas)
         toolPicker.setVisible(true, forFirstResponder: canvas)
         canvas.becomeFirstResponder()
-
+        
         let closeButton = UIButton(type: .system)
         closeButton.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
         closeButton.tintColor = .lightGray
@@ -86,11 +86,25 @@ class CanvasViewController: UIViewController {
             canvas.widthAnchor.constraint(equalTo: imageView.widthAnchor),
             canvas.heightAnchor.constraint(equalTo: imageView.heightAnchor),
         ])
-
     }
     
     @objc func closeModal() {
         dismiss(animated: true, completion: nil)
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        
+        // 以前のキャンバスサイズを取得
+        let previousSize = canvas.bounds.size
+        
+        coordinator.animate(alongsideTransition: { _ in
+            let newSize = self.canvas.bounds.size
+            let scale = newSize.width / previousSize.width
+            self.canvas.drawing = self.canvas.drawing.transformed(using: CGAffineTransform(scaleX: scale, y: scale))
+
+        }, completion: nil)
     }
 }
 
@@ -99,4 +113,7 @@ extension NSLayoutConstraint {
         self.priority = priority
         return self
     }
+}
+
+extension PKDrawing {
 }

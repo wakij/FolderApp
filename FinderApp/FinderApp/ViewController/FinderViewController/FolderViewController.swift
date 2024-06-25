@@ -341,12 +341,12 @@ extension FolderViewController: UICollectionViewDelegate {
         
 //        対応するcoredataModelを取得
         if item.isFile {
-//            if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-//                let pickerView = UIImagePickerController()
-//                pickerView.sourceType = .photoLibrary
-//                pickerView.delegate = self
-//                self.present(pickerView, animated: true)
-//            }
+            if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+                let pickerView = UIImagePickerController()
+                pickerView.sourceType = .photoLibrary
+                pickerView.delegate = self
+                self.present(pickerView, animated: true)
+            }
         } else {
             guard let folder: Folder = self.finderManager.fetch(id: item.id) else {
                 return
