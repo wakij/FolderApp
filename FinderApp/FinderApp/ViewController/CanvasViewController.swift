@@ -9,18 +9,19 @@ import Foundation
 import PencilKit
 import UIKit
 
-class CanvasViewController: UIViewController {
+class CanvasViewController: UIViewController, UIScrollViewDelegate, PKCanvasViewDelegate {
     
     let image: UIImage
     private var imageView: UIImageView
-    private var canvas: PKCanvasView
+    private lazy var canvas: PKCanvasView = {
+        return PKCanvasView(frame: CGRect(origin: .zero, size: self.view.bounds.size))
+    }()
     
-    private var canvasInitWidth: CGFloat?
+    private var toolPicker = PKToolPicker()
     
     init(image: UIImage) {
         self.image = image
         self.imageView = UIImageView(image: image)
-        self.canvas = PKCanvasView()
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -38,28 +39,17 @@ class CanvasViewController: UIViewController {
         self.view.backgroundColor = .systemBackground
         
         self.imageView.contentMode = .scaleAspectFit
-        self.imageView.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(self.imageView)
-        
-        self.canvas = PKCanvasView()
-        canvas.isOpaque = false
+        canvas.delegate = self
         canvas.translatesAutoresizingMaskIntoConstraints = false
+        canvas.backgroundColor = .clear
+        canvas.contentSize = imageView.bounds.size
+        canvas.minimumZoomScale = 0.5
+        canvas.maximumZoomScale = 5
+        
         view.addSubview(canvas)
+        canvas.subviews[0].addSubview(self.imageView)
+        canvas.subviews[0].sendSubviewToBack(self.imageView)
         canvas.tool = PKInkingTool(.pen, color: .black, width: 30)
-        
-        if let window = UIApplication.shared.windows.first {
-            if let toolPicker = PKToolPicker.shared(for: window) {
-                toolPicker.addObserver(canvas)
-                toolPicker.setVisible(true, forFirstResponder: canvas)
-                canvas.becomeFirstResponder()
-                
-            }
-        }
-        
-        let toolPicker = PKToolPicker()
-        toolPicker.addObserver(canvas)
-        toolPicker.setVisible(true, forFirstResponder: canvas)
-        canvas.becomeFirstResponder()
         
         let closeButton = UIButton(type: .system)
         closeButton.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
@@ -71,39 +61,68 @@ class CanvasViewController: UIViewController {
         closeButton.translatesAutoresizingMaskIntoConstraints  = false
         view.addSubview(closeButton)
         
-        let aspectRatio = image.size.width / image.size.height
-        
         NSLayoutConstraint.activate([
-            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            imageView.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.8),
-            imageView.heightAnchor.constraint(lessThanOrEqualTo: view.heightAnchor, multiplier: 0.8),
-            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: aspectRatio).withPriority(.defaultHigh),
+            canvas.topAnchor.constraint(equalTo: self.view.topAnchor),
+            canvas.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            canvas.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            canvas.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             closeButton.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 50),
             closeButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20),
             closeButton.widthAnchor.constraint(equalToConstant: 44),
             closeButton.heightAnchor.constraint(equalToConstant: 44),
-            canvas.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
-            canvas.centerYAnchor.constraint(equalTo: imageView.centerYAnchor),
-            canvas.widthAnchor.constraint(equalTo: imageView.widthAnchor),
-            canvas.heightAnchor.constraint(equalTo: imageView.heightAnchor),
         ])
+        
+        setUpZoomScale()
+        updateContentInset()
     }
     
     @objc func closeModal() {
-        dismiss(animated: true, completion: nil)
+        toolPicker.addObserver(canvas)
+        toolPicker.setVisible(true, forFirstResponder: canvas)
+        canvas.becomeFirstResponder()
+    }
+    
+    func scrollViewDidZoom(_ canvas: UIScrollView) {
+        updateContentInset()
+    }
+    
+    private func updateZoomScale() {
+        let widthScale = canvas.bounds.width / image.size.width
+        let heightScale = canvas.bounds.height / image.size.height
+        let scale = min(widthScale, heightScale)
+
+        canvas.minimumZoomScale = scale
+        canvas.maximumZoomScale = scale * 5
+
+        // After setting minimumZoomScale, maximumZoomScale and delegate.
+        canvas.zoomScale = max(canvas.minimumZoomScale, canvas.zoomScale)
+    }
+    
+    private func setUpZoomScale() {
+        let widthScale = canvas.bounds.width / image.size.width
+        let heightScale = canvas.bounds.height / image.size.height
+        let scale = min(widthScale, heightScale)
+
+        canvas.minimumZoomScale = scale
+        canvas.maximumZoomScale = scale * 5
+
+        // After setting minimumZoomScale, maximumZoomScale and delegate.
+        canvas.zoomScale = canvas.minimumZoomScale
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-        if canvasInitWidth == nil {
-            canvasInitWidth = self.canvas.bounds.width
-        }
-        let canvasScale = canvas.bounds.width / canvasInitWidth!
-        canvas.minimumZoomScale = canvasScale
-        canvas.maximumZoomScale = canvasScale
-        canvas.zoomScale = canvasScale
+        updateZoomScale()
+        updateContentInset()
+    }
+    
+    func updateContentInset() {
+        let widthInset = max((canvas.frame.width - imageView.frame.width * canvas.zoomScale) / 2, 0)
+        let heightInset = max((canvas.frame.height - imageView.frame.height * canvas.zoomScale) / 2, 0)
+        canvas.contentInset = .init(top: heightInset,
+                                        left: widthInset,
+                                        bottom: heightInset,
+                                        right: widthInset)
     }
 }
 
@@ -112,7 +131,4 @@ extension NSLayoutConstraint {
         self.priority = priority
         return self
     }
-}
-
-extension PKDrawing {
 }
