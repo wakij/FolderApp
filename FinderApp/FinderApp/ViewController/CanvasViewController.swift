@@ -15,6 +15,8 @@ class CanvasViewController: UIViewController {
     private var imageView: UIImageView
     private var canvas: PKCanvasView
     
+    private var canvasInitWidth: CGFloat?
+    
     init(image: UIImage) {
         self.image = image
         self.imageView = UIImageView(image: image)
@@ -92,19 +94,16 @@ class CanvasViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         
-        
-        // 以前のキャンバスサイズを取得
-        let previousSize = canvas.bounds.size
-        
-        coordinator.animate(alongsideTransition: { _ in
-            let newSize = self.canvas.bounds.size
-            let scale = newSize.width / previousSize.width
-            self.canvas.drawing = self.canvas.drawing.transformed(using: CGAffineTransform(scaleX: scale, y: scale))
-
-        }, completion: nil)
+        if canvasInitWidth == nil {
+            canvasInitWidth = self.canvas.bounds.width
+        }
+        let canvasScale = canvas.bounds.width / canvasInitWidth!
+        canvas.minimumZoomScale = canvasScale
+        canvas.maximumZoomScale = canvasScale
+        canvas.zoomScale = canvasScale
     }
 }
 
