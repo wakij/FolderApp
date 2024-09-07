@@ -320,7 +320,6 @@ extension FolderViewController: UICollectionViewDelegate {
 //    通常時
 //    あるセルがselectedで他のセルをtapすると呼ばれる
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath), let finderCell = cell as? FinderCellView else { return }
         
         if mode == .select {
             updateNaviBar()
@@ -329,8 +328,6 @@ extension FolderViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        guard let cell = collectionView.cellForItem(at: indexPath), let finderCell = cell as? FinderCellView else { return }
                 
         if mode == .select {
             updateNaviBar()
@@ -339,22 +336,11 @@ extension FolderViewController: UICollectionViewDelegate {
         
         guard let item = self.dataSource.itemIdentifier(for: indexPath) else { return }
         
-//        対応するcoredataModelを取得
-        if item.isFile {
-            if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-                let pickerView = UIImagePickerController()
-                pickerView.sourceType = .photoLibrary
-                pickerView.delegate = self
-                self.present(pickerView, animated: true)
-            }
-        } else {
-            guard let folder: Folder = self.finderManager.fetch(id: item.id) else {
-                return
-            }
+        if !item.isFile {
+            guard let folder: Folder = self.finderManager.fetch(id: item.id) else { return }
             let folderViewController = FolderViewController(folder: folder, finderManager: finderManager)
             navigationController?.pushViewController(folderViewController, animated: true)
         }
-//
     }
 }
 
@@ -478,19 +464,5 @@ final class FolderCollectionVidw: UICollectionView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.next?.touchesBegan(touches, with: event)
         super.touchesBegan(touches, with: event)
-    }
-}
-
-extension FolderViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        let image = info[.originalImage] as! UIImage
-        self.dismiss(animated: true) // 選択画面を閉じる
-        
-        guard let selectedIndex = collectionView.indexPathsForSelectedItems?.first else { return }
-        guard let file = self.dataSource.itemIdentifier(for: selectedIndex) else { return }
-        
-        let canvasViewController = CanvasViewController(image: image)
-        canvasViewController.modalPresentationStyle = .fullScreen
-        self.present(canvasViewController, animated: true)
     }
 }
